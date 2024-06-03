@@ -1,0 +1,110 @@
+model:
+  _target_: source.models.classification.ClassificationModel
+  backbone:
+    _target_: source.models.ulip_pointbert.point_encoder.PointBERT_ULIP
+    pretrained: true
+    n_tokens: 512
+    n_points_per_token: 32
+    input_feature_dim: 0
+  head:
+    _target_: source.models.model_utils.mlp_utils.MLP
+    hidden_channels:
+    - 768
+    - 768
+    output_dim: 55
+    norm:
+      _target_: torch.nn.BatchNorm1d
+    act:
+      _target_: torch.nn.ReLU
+    last_bias: true
+    dropout: 0.25
+  enable_knn_eval: true
+  optimizer:
+    _target_: torch.optim.AdamW
+    lr: 5.0e-05
+    weight_decay: 0.0001
+  scheduler:
+    _target_: torch.optim.lr_scheduler.OneCycleLR
+    max_lr: ${model.optimizer.lr}
+    epochs: ${training.epochs}
+    steps_per_epoch: 1
+    pct_start: 0.08
+    verbose: true
+    anneal_strategy: cos
+dataset:
+  train_dataset:
+    _target_: source.datasets.dataset.ClassificationDataset
+    versioning_path: source/config/versioning/shapenet_normal_coarse_v0.json
+    cache_folder_path: /home/anon/3DOR/data/cache/shapenet_normal
+    limit: null
+    num_points: ${dataset.num_points}
+    normals: ${dataset.normals}
+    mode: train
+    fold_mapping:
+      train:
+      - train
+      - val
+    transforms:
+    - _target_: source.geometry_utils.augmentation.Rotate
+      x: false
+      'y': false
+      z: false
+    - _target_: source.geometry_utils.augmentation.Flip
+      xy: false
+      yz: false
+      xz: false
+    - _target_: source.geometry_utils.augmentation.Stretch
+      scale_min: 0.7
+      scale_max: 1.25
+    - _target_: source.geometry_utils.augmentation.Jitter
+      sigma: 0.005
+      clip: 0.05
+    - _target_: source.geometry_utils.augmentation.Shift
+      shift_max: 0.07
+  val_dataset:
+  - _target_: source.datasets.dataset.ClassificationDataset
+    versioning_path: source/config/versioning/shapenet_normal_coarse_v0.json
+    cache_folder_path: /home/anon/3DOR/data/cache/shapenet_normal
+    limit: null
+    num_points: ${dataset.num_points}
+    normals: ${dataset.normals}
+    transforms: null
+    mode: val
+    fold_mapping:
+      val:
+      - train
+      - val
+  - _target_: source.datasets.dataset.ClassificationDataset
+    versioning_path: source/config/versioning/shapenet_normal_coarse_v0.json
+    cache_folder_path: /home/anon/3DOR/data/cache/shapenet_normal
+    limit: null
+    num_points: ${dataset.num_points}
+    normals: ${dataset.normals}
+    transforms: null
+    mode: val
+    fold_mapping:
+      val:
+      - test
+  num_points: 8192
+  normals: false
+name: classification_shapenet_normal_ulip
+training:
+  num_workers: 12
+  batch_size: 64
+  monitor_metric: val_knn_acc_mean
+  monitor_mode: max
+  epochs: 70
+  limit_train_batches: 100
+  val_every_n_epochs: 1
+gpu_ids:
+- 4
+- 5
+- 6
+tuning_config: classification_m40_ulip
+tune_config:
+  trials: 300
+  early_stopping:
+    patience: 8
+  scheduler:
+    grace_period: 15
+    min_samples_required: 5

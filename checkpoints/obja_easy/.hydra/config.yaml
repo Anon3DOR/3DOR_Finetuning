@@ -1,0 +1,107 @@
+model:
+  _target_: source.models.classification.ClassificationModel
+  backbone:
+    _target_: source.models.ulip_pointbert.point_encoder.PointBERT_ULIP
+    pretrained: true
+    n_tokens: 512
+    n_points_per_token: 32
+  head:
+    _target_: source.models.model_utils.mlp_utils.MLP
+    hidden_channels:
+    - 768
+    - 768
+    output_dim: 76
+    norm:
+      _target_: torch.nn.BatchNorm1d
+    act:
+      _target_: torch.nn.ReLU
+    last_bias: true
+    dropout: 0.25
+  enable_knn_eval: true
+  optimizer:
+    _target_: torch.optim.AdamW
+    lr: 5.0e-05
+    weight_decay: 0.0001
+  scheduler:
+    _target_: torch.optim.lr_scheduler.OneCycleLR
+    max_lr: ${model.optimizer.lr}
+    epochs: ${training.epochs}
+    steps_per_epoch: 1
+    pct_start: 0.2
+    verbose: true
+    anneal_strategy: cos
+dataset:
+  train_dataset:
+    _target_: source.datasets.dataset.ClassificationDataset
+    versioning_path: source/config/versioning/objaverse_easy_v0.json
+    cache_folder_path: /home/anon/3DOR/data/cache/objaverse
+    num_points: ${dataset.num_points}
+    normals: ${dataset.normals}
+    fold_mapping:
+      train:
+      - train
+      - val
+    limit: null
+    mode: train
+    transforms:
+    - _target_: source.geometry_utils.augmentation.Rotate
+      x: false
+      'y': false
+      z: false
+    - _target_: source.geometry_utils.augmentation.Flip
+      xy: false
+      yz: true
+      xz: true
+    - _target_: source.geometry_utils.augmentation.Stretch
+      scale_min: 0.8
+      scale_max: 1.1
+    - _target_: source.geometry_utils.augmentation.Jitter
+      sigma: 0.01
+      clip: 0.05
+    - _target_: source.geometry_utils.augmentation.Shift
+      shift_max: 0.05
+  val_dataset:
+  - _target_: source.datasets.dataset.ClassificationDataset
+    versioning_path: source/config/versioning/objaverse_easy_v0.json
+    cache_folder_path: /home/anon/3DOR/data/cache/objaverse
+    fold_mapping:
+      val:
+      - train
+      - val
+    limit: null
+    num_points: ${dataset.num_points}
+    normals: ${dataset.normals}
+    mode: val
+    transforms: null
+  - _target_: source.datasets.dataset.ClassificationDataset
+    versioning_path: source/config/versioning/objaverse_easy_v0.json
+    cache_folder_path: /home/anon/3DOR/data/cache/objaverse
+    fold_mapping:
+      val:
+      - test
+    limit: null
+    num_points: ${dataset.num_points}
+    normals: ${dataset.normals}
+    mode: val
+    transforms: null
+  num_points: 8192
+  normals: false
+name: classification_objaverse_easy
+training:
+  num_workers: 12
+  batch_size: 32
+  monitor_metric: val_knn_acc_mean
+  monitor_mode: max
+  epochs: 75
+  limit_train_batches: 100
+  val_every_n_epochs: 1
+gpu_ids:
+- 7
+tuning_config: classification_m40_ulip
+tune_config:
+  trials: 300
+  early_stopping:
+    patience: 10
+  scheduler:
+    grace_period: 25
+    min_samples_required: 5
