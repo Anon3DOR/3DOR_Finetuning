@@ -17,4 +17,4 @@ We found the results to be most consistent over various runs with the NDCG metri
 All results in the paper are the average of 5 consecutive runs of this script.
 
 
-
+Feel free to create a github issue when problems arise!
