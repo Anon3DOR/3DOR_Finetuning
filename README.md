@@ -1,5 +1,8 @@
-# 3DOR_Finetuning
-Code, data and checkpoints for reproducing results in "Fine-tuning 3D foundation models for geometric object retrieval" - Anon.
+# Fine-tuning 3D foundation models for geometric object retrieval
+
+Code, data and checkpoints for reproducing results in "Fine-tuning 3D foundation models for geometric object retrieval" - Jarne Van den Herrewegen, Tom Tourwe, Maks Ovsjanikov and Francis wyffels.
+
+[[paper](https://www.sciencedirect.com/science/article/pii/S0097849324001286)]
 
 ## Instructions
 
