@@ -4,6 +4,10 @@ Code, data and checkpoints for reproducing results in "Fine-tuning 3D foundation
 
 [[paper](https://www.sciencedirect.com/science/article/pii/S0097849324001286)]
 
+Accepted to:
+* [Computers & Graphics](https://www.sciencedirect.com/journal/computers-and-graphics/vol/122/suppl/C)
+* [ECCV Workshop Computer Vision for Metaverse](https://sites.google.com/view/cv4metaverse-2024/home?authuser=0)
+
 ## Instructions
 
 Download the data for all datasets (except proprietary) in this folder: https://huggingface.co/datasets/Anon3DOR/3DOR_pointclouds/blob/main/data_3DOR.zip
