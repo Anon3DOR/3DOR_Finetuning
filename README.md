@@ -1,6 +1,6 @@
 # Fine-tuning 3D foundation models for geometric object retrieval
 
-Code, data and checkpoints for reproducing results in "Fine-tuning 3D foundation models for geometric object retrieval" - Jarne Van den Herrewegen, Tom Tourwe, Maks Ovsjanikov and Francis wyffels.
+Code, data and checkpoints for reproducing results in "[Fine-tuning 3D foundation models for geometric object retrieval](https://sites.google.com/view/cv4metaverse-2024/home?authuser=0)" - Jarne Van den Herrewegen, Tom Tourwe, Maks Ovsjanikov and Francis wyffels.
 
 [[paper](https://www.sciencedirect.com/science/article/pii/S0097849324001286)]
 
